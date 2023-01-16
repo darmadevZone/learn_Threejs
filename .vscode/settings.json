@@ -2,4 +2,9 @@
     "liveServer.settings.root": "./dist",
     "html.format.wrapLineLength": 80,
     "liveServer.settings.port": 5502,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+    }
 }

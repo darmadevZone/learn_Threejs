@@ -15,7 +15,7 @@ async function init() {
   );
 
   const renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0xf3f3f3);
@@ -47,11 +47,11 @@ async function init() {
       y: mapRand(-POS_RANGE, POS_RANGE),
       z: mapRand(-POS_RANGE, POS_RANGE),
     };
-    const material = new THREE.MeshBasicMaterial({ color });
+    const material = new THREE.MeshLambertMaterial({ color });
     const gIndex = mapRand(0, geometries.length - 1, true);
     const mesh = new THREE.Mesh(geometries[gIndex], material);
     mesh.position.set(pos.x, pos.y, pos.z);
-    const scale = mapRand(1, MAX_SCALE)
+    const scale = mapRand(1, MAX_SCALE);
     mesh.geometry.scale(scale, scale, scale);
     return mesh;
   }
@@ -70,6 +70,21 @@ async function init() {
 
   const control = new OrbitControls(camera, renderer.domElement);
 
+  //light setting
+  const malight = new THREE.AmbientLight(0xe4e4e4, 0.01);
+  scene.add(malight);
+
+  const light1 = new THREE.PointLight(0xe4e4e4);
+  light1.position.set(10, 100, 110);
+  const helper1 = new THREE.PointLightHelper(light1);
+  scene.add(light1, helper1);
+
+  const light2 = new THREE.PointLight(0xeeeeee, 1, 400);
+  light2.position.set(-100, 100, 210);
+  const helper2 = new THREE.PointLightHelper(light2);
+
+  scene.add(light2, helper2);
+
   let i = 0;
   function animate() {
     requestAnimationFrame(animate);
@@ -79,6 +94,7 @@ async function init() {
     // mesh1.rotation.y += 0.01;
     // mesh2.rotation.z += 0.01;
     // mesh3.rotation.y += 0.01;
+
     // mesh.rotateX(0.01);
 
     // 平行移動

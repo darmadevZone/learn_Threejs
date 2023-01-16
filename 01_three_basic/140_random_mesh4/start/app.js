@@ -15,7 +15,7 @@ async function init() {
   );
 
   const renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0xf3f3f3);
@@ -51,7 +51,7 @@ async function init() {
     const gIndex = mapRand(0, geometries.length - 1, true);
     const mesh = new THREE.Mesh(geometries[gIndex], material);
     mesh.position.set(pos.x, pos.y, pos.z);
-    const scale = mapRand(1, MAX_SCALE)
+    const scale = mapRand(1, MAX_SCALE);
     mesh.geometry.scale(scale, scale, scale);
     return mesh;
   }
@@ -63,15 +63,15 @@ async function init() {
 
   scene.add(...meshes);
 
-  const axis = new THREE.AxesHelper(20);
-  scene.add(axis);
+  // const axis = new THREE.AxesHelper(20);
+  // scene.add(axis);
 
   camera.position.z = 30;
 
   const control = new OrbitControls(camera, renderer.domElement);
 
   // ライトの設置
-  const amlight = new THREE.AmbientLight(0xe4e4e4, .6);
+  const amlight = new THREE.AmbientLight(0xe4e4e4, 0.6);
   scene.add(amlight);
 
   const light1 = new THREE.PointLight(0xe4e4e4, 1, 400);
@@ -85,10 +85,49 @@ async function init() {
   helper2.visible = false;
 
   scene.add(light1, helper1, light2, helper2);
-  
-  let i = 0;
+
+  const TARGET_MESH_NUM = 10;
+
+  function getAction({ x, y, z }) {
+    console.log(x);
+    const rand = mapRand(0.7, 1.3);
+    const ACTIONS = [
+      function () {
+        const direction = x < 0 ? rand : -rand;
+        this.position.x += direction;
+      },
+      function () {
+        const direction = y < 0 ? rand : -rand;
+        this.position.y += direction;
+      },
+      function () {
+        const direction = z < 0 ? rand : -rand;
+        this.position.z += direction;
+      },
+    ];
+    const action = ACTIONS[mapRand(0, ACTIONS.length - 1, true)];
+    return action;
+  }
+
+  let targetMeshes = [];
+  setInterval(() => {
+    targetMeshes.forEach((mesh) => (mesh.__action = null));
+    targetMeshes = [];
+    for (let i = 0; i < TARGET_MESH_NUM; i++) {
+      let mesh = meshes[mapRand(0, meshes.length - 1, true)];
+      //meshにイベントハンドラみたいなもの:(click onChange)
+
+      mesh.__action = getAction(mesh.position);
+      targetMeshes.push(mesh);
+    }
+  }, 2000);
+
   function animate() {
     requestAnimationFrame(animate);
+    targetMeshes.forEach((mesh) => mesh.__action());
+    if (POS_RANGE > camera.position.z) {
+      camera.position.z += 0.03;
+    }
 
     // 回転
     // mesh1.rotation.x += 0.01;
